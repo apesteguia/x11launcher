@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <time.h>
+#include <unistd.h>
 
 int main(void) {
     Display *d;
@@ -17,7 +19,9 @@ int main(void) {
     StringList items, screenItems;
     pid_t pid;
     int s, letterCount, row;
-    char formattedString[100], name[MAX_INPUT_CHARS + 1] = "\0";
+    char formattedString[100], name[MAX_INPUT_CHARS + 1] = "\0", *executable,
+                                                      process[255];
+    bool notEscape;
 
     d = XOpenDisplay(NULL);
     if (d == NULL) {
@@ -29,6 +33,7 @@ int main(void) {
     initStringList(&screenItems);
     getPrograms(&items, PATH);
     letterCount = row = 0;
+    notEscape = false;
 
     currentTime = time(NULL);
     time(&currentTime);
@@ -68,8 +73,10 @@ int main(void) {
 
             if (strlen(name) < 1) {
                 screenItems = obtenerPrimerosN(&items, ROWS);
+                executable = NULL;
             } else {
                 screenItems = obtenerPrimerosNconPrefijo(&items, ROWS, name);
+                executable = front(&screenItems);
             }
 
             XClearWindow(d, w);
@@ -88,6 +95,12 @@ int main(void) {
 
             if (buffer[0] == 27)
                 break;
+
+            if (buffer[0] == 13) {
+                printf("ENTER");
+                notEscape = true;
+                break;
+            }
 
             if (keysym == XK_Down) {
                 if (row + 1 <= ROWS - 1)
@@ -115,8 +128,10 @@ int main(void) {
 
             if (strlen(name) < 1) {
                 screenItems = obtenerPrimerosN(&items, ROWS);
+                executable = NULL;
             } else {
                 screenItems = obtenerPrimerosNconPrefijo(&items, ROWS, name);
+                executable = front(&screenItems);
             }
             XClearWindow(d, w);
             drawItems(&screenItems, row, d, w, gcWhite, gcBlue);
@@ -128,6 +143,25 @@ int main(void) {
     }
 
     XCloseDisplay(d);
+    printf("Hola bobi");
+
+    if (executable != NULL && notEscape) {
+        printf("ENTRO");
+        strcpy(process, PATH);
+        strcat(process, executable);
+
+        clearStringList(&items);
+        clearStringList(&screenItems);
+        pid = fork();
+        if (pid == 0) {
+            printf("%s\n", process);
+            printf("HOLA\n");
+            int e = execl(process, process, NULL);
+            printf("%d\n", e);
+        } else {
+            wait(NULL);
+        }
+    }
 
     clearStringList(&items);
     clearStringList(&screenItems);
