@@ -1,6 +1,7 @@
 #include "Cmenu.h"
 #include "list.h"
 #include <X11/X.h>
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <stdio.h>
@@ -51,6 +52,10 @@ int main(void) {
     hints.min_width = hints.max_width = SCREEN_W;
     hints.min_height = hints.max_height = SCREEN_H;
     XSetWMNormalHints(d, w, &hints);
+    Atom wmAtoms[1];
+    wmAtoms[0] = XInternAtom(d, "_MOTIF_WM_HINTS", False);
+    XChangeProperty(d, w, XInternAtom(d, "_MOTIF_WM_HINTS", False), XA_ATOM, 32,
+                    PropModeReplace, (unsigned char *)&wmAtoms, 1);
 
     XSelectInput(d, w, ExposureMask | KeyPressMask);
     XMapWindow(d, w);
