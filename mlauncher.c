@@ -88,15 +88,13 @@ int main(void) {
             if (buffer[0] == 27)
                 break;
 
-            if ((int)buffer[0] == XK_Up) {
-                printf("ARROW KEY UP");
-                if (row + 1 < ROWS - 1)
+            if (keysym == XK_Down) {
+                if (row + 1 <= ROWS - 1)
                     row++;
             }
 
-            if ((int)buffer[0] == XK_Down) {
-                printf("ARROW KEY DOWN");
-                if (row - 1 > 0)
+            if (keysym == XK_Up) {
+                if (row - 1 >= 0)
                     row--;
             }
 
