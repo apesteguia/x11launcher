@@ -19,8 +19,6 @@ int main(void) {
     time_t currentTime;
     StringList items, screenItems;
     pid_t pid;
-    Atom wmHintsAtom;
-    unsigned long wmHints[1] = {0};
     int s, letterCount, row;
     char formattedString[100], name[MAX_INPUT_CHARS + 1] = "\0", *executable,
                                                       process[255];
@@ -46,18 +44,19 @@ int main(void) {
             monthNames[localTime->tm_mon], localTime->tm_year + 1900);
 
     s = DefaultScreen(d);
-    w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, SCREEN_W, SCREEN_H, 1, 0,
+    w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, SCREEN_W, SCREEN_H, 0, 0,
                             BlackPixel(d, s));
+
+    XSetWindowAttributes attr;
+    attr.override_redirect = True;
+    XChangeWindowAttributes(d, w, CWOverrideRedirect, &attr);
 
     XSizeHints hints;
     hints.flags = PMinSize | PMaxSize;
     hints.min_width = hints.max_width = SCREEN_W;
     hints.min_height = hints.max_height = SCREEN_H;
     XSetWMNormalHints(d, w, &hints);
-    wmHintsAtom = XInternAtom(d, "_MOTIF_WM_HINTS", False);
 
-    XChangeProperty(d, w, wmHintsAtom, wmHintsAtom, 32, PropModeReplace,
-                    (unsigned char *)wmHints, 1);
     XSelectInput(d, w, ExposureMask | KeyPressMask);
     XMapWindow(d, w);
 
