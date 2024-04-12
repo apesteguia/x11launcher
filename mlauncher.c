@@ -61,16 +61,16 @@ int main(void) {
     GC gcBlue = XCreateGC(d, w, 0, NULL);
     XSetForeground(d, gcBlue, color.pixel);
 
-    if (strlen(name) < 1) {
-        screenItems = obtenerPrimerosN(&items, ROWS);
-    } else {
-        screenItems = obtenerPrimerosNconPrefijo(&items, ROWS, "c");
-    }
-
     while (1) {
         XNextEvent(d, &e);
 
         if (e.type == Expose) {
+
+            if (strlen(name) < 1) {
+                screenItems = obtenerPrimerosN(&items, ROWS);
+            } else {
+                screenItems = obtenerPrimerosNconPrefijo(&items, ROWS, name);
+            }
 
             XClearWindow(d, w);
             XDrawString(d, w, gcWhite, 7, 5, name, strlen(name));
@@ -80,6 +80,7 @@ int main(void) {
             drawItems(&screenItems, row, d, w, gcWhite, gcBlue);
         }
         if (e.type == KeyPress) {
+
             char buffer[10];
             KeySym keysym;
             XLookupString(&e.xkey, buffer, sizeof(buffer), &keysym, NULL);
@@ -112,6 +113,11 @@ int main(void) {
                 letterCount++;
             }
 
+            if (strlen(name) < 1) {
+                screenItems = obtenerPrimerosN(&items, ROWS);
+            } else {
+                screenItems = obtenerPrimerosNconPrefijo(&items, ROWS, name);
+            }
             XClearWindow(d, w);
             drawItems(&screenItems, row, d, w, gcWhite, gcBlue);
             XDrawString(d, w, gcWhite, 7, 12, name, strlen(name));
