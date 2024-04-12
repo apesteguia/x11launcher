@@ -16,7 +16,7 @@ int main(void) {
     time_t currentTime;
     StringList items, screenItems;
     pid_t pid;
-    int s, letterCount;
+    int s, letterCount, row;
     char formattedString[100], name[MAX_INPUT_CHARS + 1] = "\0";
 
     d = XOpenDisplay(NULL);
@@ -28,7 +28,7 @@ int main(void) {
     initStringList(&items);
     initStringList(&screenItems);
     getPrograms(&items, PATH);
-    letterCount = 0;
+    letterCount = row = 0;
 
     currentTime = time(NULL);
     time(&currentTime);
@@ -61,16 +61,23 @@ int main(void) {
     GC gcBlue = XCreateGC(d, w, 0, NULL);
     XSetForeground(d, gcBlue, color.pixel);
 
+    if (strlen(name) < 1) {
+        screenItems = obtenerPrimerosN(&items, ROWS);
+    } else {
+        screenItems = obtenerPrimerosNconPrefijo(&items, ROWS, "c");
+    }
+
     while (1) {
         XNextEvent(d, &e);
 
         if (e.type == Expose) {
-            // Borra la ventana y redibuja todo
+
             XClearWindow(d, w);
             XDrawString(d, w, gcWhite, 7, 5, name, strlen(name));
             XFillRectangle(d, w, gcBlue, 0, SCREEN_H - 15, SCREEN_W, 16);
             XDrawString(d, w, gcWhite, 7, SCREEN_H - 3, formattedString,
                         strlen(formattedString));
+            drawItems(&screenItems, row, d, w, gcWhite, gcBlue);
         }
         if (e.type == KeyPress) {
             char buffer[10];
@@ -80,6 +87,18 @@ int main(void) {
 
             if (buffer[0] == 27)
                 break;
+
+            if ((int)buffer[0] == XK_Up) {
+                printf("ARROW KEY UP");
+                if (row + 1 < ROWS - 1)
+                    row++;
+            }
+
+            if ((int)buffer[0] == XK_Down) {
+                printf("ARROW KEY DOWN");
+                if (row - 1 > 0)
+                    row--;
+            }
 
             if (buffer[0] == 8) {
                 letterCount--;
@@ -94,7 +113,9 @@ int main(void) {
                 name[letterCount + 1] = '\0';
                 letterCount++;
             }
+
             XClearWindow(d, w);
+            drawItems(&screenItems, row, d, w, gcWhite, gcBlue);
             XDrawString(d, w, gcWhite, 7, 12, name, strlen(name));
             XFillRectangle(d, w, gcBlue, 0, SCREEN_H - 15, SCREEN_W, 16);
             XDrawString(d, w, gcWhite, 7, SCREEN_H - 3, formattedString,
