@@ -4,6 +4,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/Xinerama.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,11 +48,26 @@ int main(void) {
     w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, SCREEN_W, SCREEN_H, 0, 0,
                             BlackPixel(d, s));
 
-    // Centrar la ventana
+    XSetWindowAttributes attr;
+    attr.override_redirect = True;
+    XChangeWindowAttributes(d, w, CWOverrideRedirect, &attr);
+
     int screen_width = DisplayWidth(d, s);
     int screen_height = DisplayHeight(d, s);
     XMoveWindow(d, w, (screen_width - SCREEN_W) / 2,
                 (screen_height - SCREEN_H) / 2);
+
+    XineramaScreenInfo *screens;
+    int numScreens;
+    screens = XineramaQueryScreens(d, &numScreens);
+
+    if (screens != NULL && numScreens > 0) {
+        XMoveWindow(d, w, (screens[0].width - SCREEN_W) / 2,
+                    (screens[0].height - SCREEN_H) / 2);
+    } else {
+        XMoveWindow(d, w, (screen_width - SCREEN_W) / 2,
+                    (screen_height - SCREEN_H) / 2);
+    }
 
     XSizeHints hints;
     hints.flags = PMinSize | PMaxSize;
@@ -148,4 +164,30 @@ int main(void) {
                         strlen(formattedString));
         }
     }
+
+    XCloseDisplay(d);
+    printf("Hola bobi");
+
+    if (executable != NULL && notEscape) {
+        printf("ENTRO");
+        strcpy(process, PATH);
+        strcat(process, executable);
+
+        clearStringList(&items);
+        clearStringList(&screenItems);
+        pid = fork();
+        if (pid == 0) {
+            printf("%s\n", process);
+            printf("HOLA\n");
+            int e = execl(process, process, NULL);
+            printf("%d\n", e);
+        } else {
+            wait(NULL);
+        }
+    }
+
+    clearStringList(&items);
+    clearStringList(&screenItems);
+
+    return 0;
 }

@@ -15,7 +15,7 @@ clean:
 			rm -f *.o
 
 main: mlauncher.c
-			gcc mlauncher.c -o mlauncher Cmenu.o list.o -Wall -lGL -lm -lpthread -ldl -lrt -lX11
+			gcc mlauncher.c -o mlauncher Cmenu.o list.o -Wall -lGL -lm -lpthread -ldl -lrt -lX11 -lXinerama
 cmenu: Cmenu.c Cmenu.h
 			gcc -c Cmenu.c -Wall -lGL -lm -lpthread -ldl -lrt -lX11 list.o
 list: list.c list.h
