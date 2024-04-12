@@ -47,9 +47,11 @@ int main(void) {
     w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, SCREEN_W, SCREEN_H, 0, 0,
                             BlackPixel(d, s));
 
-    XSetWindowAttributes attr;
-    attr.override_redirect = True;
-    XChangeWindowAttributes(d, w, CWOverrideRedirect, &attr);
+    // Centrar la ventana
+    int screen_width = DisplayWidth(d, s);
+    int screen_height = DisplayHeight(d, s);
+    XMoveWindow(d, w, (screen_width - SCREEN_W) / 2,
+                (screen_height - SCREEN_H) / 2);
 
     XSizeHints hints;
     hints.flags = PMinSize | PMaxSize;
@@ -146,30 +148,4 @@ int main(void) {
                         strlen(formattedString));
         }
     }
-
-    XCloseDisplay(d);
-    printf("Hola bobi");
-
-    if (executable != NULL && notEscape) {
-        printf("ENTRO");
-        strcpy(process, PATH);
-        strcat(process, executable);
-
-        clearStringList(&items);
-        clearStringList(&screenItems);
-        pid = fork();
-        if (pid == 0) {
-            printf("%s\n", process);
-            printf("HOLA\n");
-            int e = execl(process, process, NULL);
-            printf("%d\n", e);
-        } else {
-            wait(NULL);
-        }
-    }
-
-    clearStringList(&items);
-    clearStringList(&screenItems);
-
-    return 0;
 }
