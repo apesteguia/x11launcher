@@ -48,10 +48,10 @@ int main(void) {
     w = XCreateSimpleWindow(d, RootWindow(d, s), 0, 0, SCREEN_W, SCREEN_H, 0, 0,
                             BlackPixel(d, s));
 
-    XSetWindowAttributes attr;
-    attr.override_redirect = True;
-    XChangeWindowAttributes(d, w, CWOverrideRedirect, &attr);
-
+    // XSetWindowAttributes attr;
+    // attr.override_redirect = True;
+    // XChangeWindowAttributes(d, w, CWOverrideRedirect, &attr);
+    //
     int screen_width = DisplayWidth(d, s);
     int screen_height = DisplayHeight(d, s);
     XMoveWindow(d, w, (screen_width - SCREEN_W) / 2,
